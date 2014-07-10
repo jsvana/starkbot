@@ -104,6 +104,25 @@ class MTG
     end
   end
 
+  def formatFlavor(card)
+    "#{card['name']}: #{card['flavor']}"
+  end
+
+  def flavor(query)
+    data = query(query)
+    if data.is_a?(String)
+      return data
+    end
+
+    if data.empty?
+      "No results found"
+    elsif data.length == 1
+      formatFlavor(data[0])
+    else
+      "[#{data.length} results] #{formatFlavor(data[0])}"
+    end
+  end
+
   def execute(m, command, query)
     command.downcase!
 
@@ -113,6 +132,8 @@ class MTG
       reply = legality(query)
     elsif command == 'rulings'
       reply = rulings(query)
+    elsif command == 'flavor'
+      reply = flavor(query)
     else
       reply = 'Unknown command'
     end
