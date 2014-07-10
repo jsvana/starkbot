@@ -26,21 +26,12 @@ class MTG
     data << " #{card['rarity'][0]}"
   end
 
-  def search(query)
+  def query(query)
     url = "http://api.mtgdb.info/search/#{URI::encode(query)}"
 
     res = open(url).read
 
-    data = JSON.parse(res)
-
-    if data.empty?
-      "No results"
-    elsif data.length == 1
-      data[0]
-    else
-      #"[#{data.length} results] #{formatCard(data[0])}"
-      data
-    end
+    JSON.parse(res)
   rescue OpenURI::HTTPError
     "Error fetching card data"
   rescue JSON::ParserError
@@ -49,19 +40,67 @@ class MTG
     #"Unknown error"
   end
 
-  def legality(query)
-    url = "http://api.mtgdb.info/search/#{URI::encode(query)}"
-
-    res = open(url).read
-
-    data = JSON.parse(res)
+  def search(query)
+    data = query(query)
+    if data.is_a?(String)
+      return data
+    end
 
     if data.empty?
-      "No results"
+      "No results found"
     elsif data.length == 1
       formatCard(data[0])
     else
       "[#{data.length} results] #{formatCard(data[0])}"
+    end
+  end
+
+  def formatLegality(card)
+    legal = card['formats'].select { |f| f['legality'] == 'Legal' }.map { |f| f['name'] }.join(', ')
+    banned = card['formats'].select { |f| f['legality'] == 'Banned' }.map { |f| f['name'] }.join(', ')
+
+    out = card['name']
+    unless legal.empty?
+      out << ", legal in #{legal}"
+    end
+    unless banned.empty?
+      out << ", banned in #{banned}"
+    end
+
+    out
+  end
+
+  def legality(query)
+    data = query(query)
+    if data.is_a?(String)
+      return data
+    end
+
+    if data.empty?
+      "No results found"
+    elsif data.length == 1
+      formatLegality(data[0])
+    else
+      "[#{data.length} results] #{formatLegality(data[0])}"
+    end
+  end
+
+  def formatRulings(card)
+    card['rulings'].map { |r| "#{r['releasedAt']}: #{r['rule']}" }.join(', ')
+  end
+
+  def rulings(query)
+    data = query(query)
+    if data.is_a?(String)
+      return data
+    end
+
+    if data.empty?
+      "No results found"
+    elsif data.length == 1
+      formatRulings(data[0])
+    else
+      "[#{data.length} results] #{formatRulings(data[0])}"
     end
   end
 
@@ -71,7 +110,9 @@ class MTG
     if command == 'search'
       reply = search(query)
     elsif command == 'legality'
-      reply = 'Unimplemented'
+      reply = legality(query)
+    elsif command == 'rulings'
+      reply = rulings(query)
     else
       reply = 'Unknown command'
     end
