@@ -6,6 +6,20 @@ require 'open-uri'
 class MTG
   include Cinch::Plugin
 
+  set :help, <<-HELP
+search <card>
+  Searches for the given card and displays basic information
+
+legality <card>
+  Finds format legality for the given card
+
+rulings <card>
+  Finds rulings on the given card
+
+price <card>
+  Finds TCGPlayer prices on the given card
+  HELP
+
   match(/mtg (\w+) (.+)/)
 
   def formatCard(card)
@@ -123,6 +137,26 @@ class MTG
     end
   end
 
+  def price(query)
+    url = "http://magictcgprices.appspot.com/api/tcgplayer/price.json?cardname=#{URI::encode(query)}"
+
+    res = open(url).read
+
+    data = JSON.parse(res)
+
+    if data[0].empty?
+      "Prices not found"
+    else
+      "low: #{data[0]}, medium: #{data[1]}, high: #{data[2]}"
+    end
+  rescue OpenURI::HTTPError
+    "Error fetching card data"
+  rescue JSON::ParserError
+    "Error parsing fetched card data"
+  rescue => e
+    "Unknown error"
+  end
+
   def execute(m, command, query)
     command.downcase!
 
@@ -134,6 +168,8 @@ class MTG
       reply = rulings(query)
     elsif command == 'flavor'
       reply = flavor(query)
+    elsif command == 'price'
+      reply = price(query)
     else
       reply = 'Unknown command'
     end

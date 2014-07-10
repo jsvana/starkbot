@@ -13,9 +13,14 @@ bot = Cinch::Bot.new do
     if config['password']
       c.password = config['password']
     end
+		c.plugins.prefix = lambda { |msg| Regexp.compile("^#{Regexp.escape(msg.bot.nick)}:?\s*") }
     c.plugins.plugins = config['plugins'].map do |p|
       Module.const_get(p)
     end
+  end
+
+  trap "SIGINT" do
+    bot.quit
   end
 end
 
