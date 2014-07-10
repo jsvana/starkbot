@@ -1,0 +1,9 @@
+{
+	"server": "irc.freenode.org",
+	"channels": [
+		"#test-chan"
+	],
+	"nick": "cinch",
+	"password": "password",
+	"plugins": []
+}
