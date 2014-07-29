@@ -50,7 +50,7 @@ require "open-uri"
 require "nokogiri"
 
 # Plugin for inspecting links pasted into channels.
-class Cinch::LinkInfo
+class LinkInfo
   include Cinch::Plugin
 
   # Default list of URL regexps to ignore.

@@ -96,7 +96,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Help plugin for Cinch.
-class Cinch::Help
+class Help
   include Cinch::Plugin
 
   listen_to :connect, :method => :on_connect
@@ -148,7 +148,7 @@ class Cinch::Help
     end
 
     response << "Sorry, nothing found." if response.empty?
-    msg.reply(response)
+    msg.user.send(response)
   end
 
   # Called on startup. This method iterates the list of registered plugins

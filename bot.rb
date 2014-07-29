@@ -1,7 +1,7 @@
 require 'cinch'
 require 'json'
 
-Dir["#{File.dirname(__FILE__)}/plugins/*.rb"].each {|file| require file }
+Dir["#{File.dirname(__FILE__)}/plugins/*.rb"].each { |file| require file }
 
 bot = Cinch::Bot.new do
   config = JSON.parse(File.read('config.json'))

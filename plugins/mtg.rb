@@ -174,6 +174,6 @@ price <card>
       reply = 'Unknown command'
     end
 
-    m.reply("#{m.user.nick}: #{reply}")
+    m.user.send(reply)
   end
 end
